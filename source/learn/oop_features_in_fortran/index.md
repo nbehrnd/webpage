@@ -116,7 +116,7 @@ END INTERFACE
 ```
 
 ::::{tip}
-_Hint:_ Given that Fortran supports arrays, use of simple linked lists is
+Given that Fortran supports arrays, use of simple linked lists is
 in most cases inappropriate. The example is presented here as being the
 simplest that permits illustrating the language features of
 interest.
@@ -421,12 +421,14 @@ argument; for the case of finalizing array arguments it is possible to
 have a set of finalizers (all listed in the type definition), each of
 which declares the dummy argument with an appropriate rank.
 
-_Hint:_ The `PURE` and `RECURSIVE` properties specified above reflect the
+::::{tip}
+The `PURE` and `RECURSIVE` properties specified above reflect the
 specific needs for the `sorted_list` type and its associated procedures.
 The `RECURSIVE` specification is optional (i.e., procedures can be
 called recursively by default), but a `NON_RECURSIVE` specification can
 be supplied if the implementation's semantics does not permit correct
 behaviour in recursive calls.
+::::
 
 The finalizer will be automatically invoked on an object if
 
@@ -504,9 +506,11 @@ strings, arrays) a non-conformable left-hand side in an assignment
 statement will be deallocated before being allocated to the right length
 or shape, respectively.
 
-_Hint:_ The features discussed in this subsection are also useful for
+::::{tip}
+The features discussed in this subsection are also useful for
 object-oriented programming, with additional semantics applying for the
 case of polymorphic objects.
+::::
 
 ## Implementing move semantics
 
@@ -568,10 +572,12 @@ are finalized at this point, if applicable. Named variables declared
 outside the construct are accessible inside it, unless a block-local
 declaration with the same name exists.
 
-_Hint:_ Note that the construct's execution flow can be modified by
+::::{tip}
+Note that the construct's execution flow can be modified by
 executing an `EXIT` statement in its body; this can, for example, be
 used for structured error handling and finally permits sending `GO TO`
 to retirement.
+::::
 
 ## The `ASSOCIATE` construct
 
@@ -678,10 +684,12 @@ The dummy arguments' declarations and meaning are:
   represents the object on which data transfer statements are to be
   executed.
 
-  _Hint:_ Note: For the examples in this chapter, we need to
+  ::::{tip}
+  Note: For the examples in this chapter, we need to
   use `CLASS`, but the behaviour is as if `TYPE` were used, as long as
   the actual arguments are non-polymorphic and the procedure-based
   interface is used for the invocation.
+  ::::
 
 - `unit`: An `INTEGER` scalar with `INTENT(in)`. Its value is that
   of the unit used for data transfer statements. Use of other unit
@@ -915,10 +923,12 @@ causes the object `a_polymorphic_body` that has the **declared** type
 Fortran nomenclature, the latter term denotes what was referred to above
 as "actual" type.
 
-_Hint:_ For an unallocated allocatable or a disassociated pointer the
+::::{tip}
+For an unallocated allocatable or a disassociated pointer the
 dynamic type is considered to be the same as the declared type, although
 this is only useful in very few contexts that do not require the object
 to be allocated or associated.
+::::
 
 ## Run-time type and class identification
 
@@ -987,10 +997,12 @@ type of interest is already otherwise known from the context, or
 handling the `CLASS default` fall-through is straightforward, this is
 not in general a desirable way of dealing with class mismatches.
 
-_Hint:_ It is permitted to mix type and class guards in a `SELECT TYPE`
+::::{tip}
+It is permitted to mix type and class guards in a `SELECT TYPE`
 construct; in that case, a type guard has precedence over a class guard
 specifying the same type with respect to selection of the guarded
 statements to be executed.
+::::
 
 ## Unlimited polymorphic objects
 
@@ -1224,11 +1236,13 @@ For polymorphic objects, the procedure `update_body` will be invoked if
 the dynamic type of the object is `body` (this might not be true if the
 dynamic type is an extension, as we shall see).
 
-_Hint:_ The invocation can also be done with non-polymorphic objects; in
+::::{tip}
+The invocation can also be done with non-polymorphic objects; in
 this case, the binding could (in principle) be determined at compilation
 time, potentially saving some call overhead. Note that the passed object
 dummy is not permitted to be allocatable or a pointer, which facilitates
 this usage.
+::::
 
 So far this is not particularly interesting; the key thing is what
 happens once we turn to type extensions. For example, to enable
@@ -1817,11 +1831,13 @@ WRITE(*,*) pfunc_obj%f(piby4_arr)
 Omitting a `param` in a constructor is fine, as long as the target
 functions cater for the dummy argument's non-presence.
 
-_Hint:_ The framework's implementation makes use of the fact that an
+::::{tip}
+The framework's implementation makes use of the fact that an
 unallocated actual argument associated with an `OPTIONAL` dummy argument
 is considered not present. Once conditional expressions are implemented
 in compilers, the code will be appropriately reworked, since use of this
 feature is recommended against.
+::::
 
 # Arrays of structures versus structures of arrays
 
