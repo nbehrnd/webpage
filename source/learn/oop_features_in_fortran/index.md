@@ -77,7 +77,7 @@ $p(x) = \sum_{k=0}^{\text{degree}} a_{k} \cdot x^k \quad (x \in \Re)$
 once it has been created and subsequently supplied with values of the
 coefficients:
 
-```f90
+```
 degree = ... ! integer value known at run time only
 ALLOCATE( p%a(0:degree) )
 p%a(0:) = ...
@@ -132,7 +132,7 @@ is suitable as starting point for building a linked list with node
 entries of type `data`. In the simplest case, inserting a data item into
 the object is done by executing the following statements:
 
-```f90
+```
 TYPE(sortable) :: my_data
 :
 my_data = ...
@@ -151,7 +151,7 @@ attribute specified for type components.
 For the first example type from the last section, the executable
 statements in
 
-```f90
+```
 TYPE(polynomial) :: q, r
 :
 q = polynomial( [2., 3., 1.] )
@@ -164,7 +164,7 @@ result in an object `q` auto-allocated to the value
 For the second example type from the last section, the executable
 statements in
 
-```f90
+```
 TYPE(sorted_list) :: sl1
 TYPE(sorted_list), target :: sl2
 TYPE(sortable) :: d1, d2
@@ -221,7 +221,7 @@ For the `polynomial` type the interface block (placed in the
 specification section of the module containing the type definition)
 might read
 
-```f90
+```
 INTERFACE polynomial
 ! overload to assure correct lower bound when creating a polynomial object
   MODULE PROCEDURE :: create_polynomial
@@ -547,7 +547,7 @@ ends. However, excessive memory consumption or the use of other
 resources may cause issues for reliable program execution. To work
 around these, the `BLOCK` construct can be used:
 
-```f90
+```
 PROGRAM test_sorted_list
   USE mod_sortable
   USE mod_sorted_list
@@ -625,7 +625,7 @@ which will be discussed where appropriate.
 
 For objects of container-like type, a data transfer statement
 
-```f90
+```
 TYPE(sorted_list) :: my_list
 : ! set up my_list
 WRITE(*, *) my_list
@@ -799,7 +799,7 @@ repository](https://github.com/reinh-bader/object_fortran)
 As a starting point, consider the definition of a type, an object of
 which can quite generally represent a physical body:
 
-```f90
+```
 TYPE :: body
   REAL :: mass
   REAL :: pos(3), vel(3)
@@ -912,7 +912,7 @@ following prerequisites:
 For example, the typed alllocation statement executed on a polymorphic
 allocatable object
 
-```f90
+```
 CLASS(body), ALLOCATABLE :: a_polymorphic_body
 :
 ALLOCATE( charged_body :: a_polymorphic_body )
@@ -1144,7 +1144,7 @@ END MODULE
 The program invoking the `setup_wtype` procedure might do so as follows,
 to set up a `wtype` object:
 
-```f90
+```
 USE mod_wtype
 TYPE(initialize) :: c_nz, c_w
 TYPE(wtype) :: my_wtype
@@ -1224,7 +1224,7 @@ Invocation of the procedure could be done in the usual manner, but the
 preferred style, especially in the case that the actual argument is
 polymorphic, is to do it through the object itself:
 
-```f90
+```
 TYPE(change) ::  dx
 :
 dx = change(description='mass', value=[0.0, 2.0, 0.0])
@@ -1422,7 +1422,7 @@ END TYPE
 
 which means that when a statement involving a comparison expression
 
-```f90
+```
 CLASS(sortable), ALLOCATABLE :: s1, s2
 
 s1 = sortable( ... )
@@ -1591,7 +1591,7 @@ section presents a way for handling this programmatically, using the
 object-oriented features of Fortran. We start with the outline for a
 type definition of sufficient generality:
 
-```f90
+```
 TYPE, PUBLIC :: pfunc_type
   PRIVATE
   PROCEDURE(pfunc), POINTER, NOPASS :: fp => null()
@@ -1619,7 +1619,7 @@ It supplies
 Notionally, one could invoke a properly set up `pfunc_type` object
 through
 
-```f90
+```
 TYPE(pfunc_type) :: pfunc_obj
 REAL :: x
 
