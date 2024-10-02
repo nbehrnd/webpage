@@ -20,7 +20,7 @@ so should be taken with a pinch of salt.
 
 Language features from Fortran 95 and later will be used; those from
 Fortran 2003 and later will also be shortly described. They are
-explained in more detail in e.g., Metcalf, Reid, Cohen and Bader.[^MFE]
+explained in more detail in e.g., Metcalf, Reid, Cohen and Bader.[^mfe]
 See also [Fortran 95 language
 features](https://en.wikipedia.org/wiki/Fortran_95_language_features) for
 the language's fundamentals; the prerequisite for understanding this article
@@ -34,7 +34,7 @@ technical literature.
 Compilable and runnable example code is available from an external
 [Github repository](https://github.com/reinh-bader/object_fortran).
 
-# Object-based programming techniques  {#sec:oop_techniques}
+# Object-based programming techniques {#sec:oop_techniques}
 
 # Introduction: Container-like types
 
@@ -115,10 +115,12 @@ INTERFACE OPERATOR(<)          ! compare two objects of type sortable
 END INTERFACE
 ```
 
-*Hint:* Given that Fortran supports arrays, use of simple linked lists is
+::::{tip}
+_Hint:_ Given that Fortran supports arrays, use of simple linked lists is
 in most cases inappropriate. The example is presented here as being the
 simplest that permits illustrating the language features of
 interest.
+:::::
 
 An object declared to be
 
@@ -419,7 +421,7 @@ argument; for the case of finalizing array arguments it is possible to
 have a set of finalizers (all listed in the type definition), each of
 which declares the dummy argument with an appropriate rank.
 
-*Hint:* The `PURE` and `RECURSIVE` properties specified above reflect the
+_Hint:_ The `PURE` and `RECURSIVE` properties specified above reflect the
 specific needs for the `sorted_list` type and its associated procedures.
 The `RECURSIVE` specification is optional (i.e., procedures can be
 called recursively by default), but a `NON_RECURSIVE` specification can
@@ -440,7 +442,7 @@ above; however, finalization does not apply for the default structure
 constructor.
 
 Note that if a finalizer is defined and the constructor is overloaded,
-but the assignment operator is *not*, then the assignment statement
+but the assignment operator is _not_, then the assignment statement
 `slq = sorted_list(...)` (which then translates into a single function
 call to the `create_sorted_list()` function shown earlier) will result
 in a mutilated left-hand side, because the finalizer will be executed on
@@ -452,7 +454,7 @@ being disassociated. For this reason, the following guideline applies:
 > assignment operation should usually be jointly implemented.
 
 See also the article "[Rule of
-three](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))"
+three](<https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming)>)"
 for the analogous situation in C++.
 
 # Further language features useful for object-based programming
@@ -482,7 +484,7 @@ allocation** permits the creation of an allocated object that is a clone
 of the specified source object or expression.
 
 Alternatively, allocatable objects (be they scalar or arrays) can be
-auto-allocated by appearing on the left-hand side of an *intrinsic*
+auto-allocated by appearing on the left-hand side of an _intrinsic_
 assignment statement:
 
 ```f90
@@ -492,7 +494,7 @@ my_string = "anything goes"  ! auto-allocated to RHS length before value is tran
 ! has been overloaded using a nonallocatable first dummy argument
 ```
 
-A caveat is that for *overloaded* assignment, this will usually not
+A caveat is that for _overloaded_ assignment, this will usually not
 work - either one needs to explicitly allocate the object before
 assigning to it, or sourced allocation must be used, which bypasses the
 overloaded assignment.
@@ -502,7 +504,7 @@ strings, arrays) a non-conformable left-hand side in an assignment
 statement will be deallocated before being allocated to the right length
 or shape, respectively.
 
-*Hint:* The features discussed in this subsection are also useful for
+_Hint:_ The features discussed in this subsection are also useful for
 object-oriented programming, with additional semantics applying for the
 case of polymorphic objects.
 
@@ -566,7 +568,7 @@ are finalized at this point, if applicable. Named variables declared
 outside the construct are accessible inside it, unless a block-local
 declaration with the same name exists.
 
-*Hint:* Note that the construct's execution flow can be modified by
+_Hint:_ Note that the construct's execution flow can be modified by
 executing an `EXIT` statement in its body; this can, for example, be
 used for structured error handling and finally permits sending `GO TO`
 to retirement.
@@ -676,10 +678,11 @@ The dummy arguments' declarations and meaning are:
   represents the object on which data transfer statements are to be
   executed.
 
-  *Hint:* Note: For the examples in this chapter, we need to
+  _Hint:_ Note: For the examples in this chapter, we need to
   use `CLASS`, but the behaviour is as if `TYPE` were used, as long as
   the actual arguments are non-polymorphic and the procedure-based
   interface is used for the invocation.
+
 - `unit`: An `INTEGER` scalar with `INTENT(in)`. Its value is that
   of the unit used for data transfer statements. Use of other unit
   values is not permitted (except, perhaps, `error_unit` for debugging
@@ -689,10 +692,10 @@ The dummy arguments' declarations and meaning are:
   describes how the incoming value relates to the parent I/O transfer
   statement:
 
-| Value | Caused by parent I/O statement |
-|----|----------|
-| `"LISTDIRECTED"` | `WRITE(unit, fmt=*) my_list` |
-| `"NAMELIST"` | `WRITE(unit, nml=my_namelist)` **Note:** Referring to the example, at least one `sorted_list` object must be a member of `my_namelist`. |
+| Value                 | Caused by parent I/O statement                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"LISTDIRECTED"`      | `WRITE(unit, fmt=*) my_list`                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `"NAMELIST"`          | `WRITE(unit, nml=my_namelist)` **Note:** Referring to the example, at least one `sorted_list` object must be a member of `my_namelist`.                                                                                                                                                                                                                                                                                                         |
 | `"DTsorted_list_fmt"` | `WRITE(unit, fmt='(DT"sorted_list_fmt"(10,2))') my_list` **Note:** `DT` is the "derived type" edit descriptor that is needed in format-driven editing to trigger execution of the UDDTIO routine. The string following the `DT` edit descriptor can be freely chosen (even to be zero length); it is recommended that the UDDTIO procedure pay attention to any possible values supplied in the parent I/O statement if it supports DT editing. |
 
 - `v_list`: A rank-1 assumed-shape `INTEGER` array with `INTENT(in)`
@@ -912,7 +915,7 @@ causes the object `a_polymorphic_body` that has the **declared** type
 Fortran nomenclature, the latter term denotes what was referred to above
 as "actual" type.
 
-*Hint:* For an unallocated allocatable or a disassociated pointer the
+_Hint:_ For an unallocated allocatable or a disassociated pointer the
 dynamic type is considered to be the same as the declared type, although
 this is only useful in very few contexts that do not require the object
 to be allocated or associated.
@@ -984,7 +987,7 @@ type of interest is already otherwise known from the context, or
 handling the `CLASS default` fall-through is straightforward, this is
 not in general a desirable way of dealing with class mismatches.
 
-*Hint:* It is permitted to mix type and class guards in a `SELECT TYPE`
+_Hint:_ It is permitted to mix type and class guards in a `SELECT TYPE`
 construct; in that case, a type guard has precedence over a class guard
 specifying the same type with respect to selection of the guarded
 statements to be executed.
@@ -1015,7 +1018,7 @@ TYPE IS (charged_body)
 END SELECT
 ```
 
-Accessing the object's data *always* needs a `SELECT TYPE` construct;
+Accessing the object's data _always_ needs a `SELECT TYPE` construct;
 type guards in the construct can in this case might not only refer to
 extensible types, but also to intrinsic types. However, for `SEQUENCE`
 or `BIND(C)` derived types, no type resolution is possible - these
@@ -1107,7 +1110,7 @@ END MODULE
   components in the conventional way becomes rather irksome without a
   concept like that above, especially if
   [type-bound procedures](#sec:tbp)
-  with a simple *and* uniform interface must be implemented;
+  with a simple _and_ uniform interface must be implemented;
 - The object `a_wtype` remains unchanged in case an unsuitable value is
   provided for `a_component`. One could add explicit error handling, but
   for these examples this is considered an unnecessary complication;
@@ -1147,7 +1150,7 @@ CALL setup_wtype(my_wtype, c_nz)
 CALL setup_wtype(my_wtype, c_w)
 ```
 
-# Type-bound procedures (TBP)  {#sec:tbp}
+# Type-bound procedures (TBP) {#sec:tbp}
 
 To resolve the class mismatch issues arising from the use of polymorphic
 objects, one needs a language mechanism for making a run-time decision
@@ -1221,7 +1224,7 @@ For polymorphic objects, the procedure `update_body` will be invoked if
 the dynamic type of the object is `body` (this might not be true if the
 dynamic type is an extension, as we shall see).
 
-*Hint:* The invocation can also be done with non-polymorphic objects; in
+_Hint:_ The invocation can also be done with non-polymorphic objects; in
 this case, the binding could (in principle) be determined at compilation
 time, potentially saving some call overhead. Note that the passed object
 dummy is not permitted to be allocatable or a pointer, which facilitates
@@ -1385,7 +1388,7 @@ as outlined in 2. below.
    END TYPE
    ```
 
-including an *obligatory* implementation `less_than_string` of an
+including an _obligatory_ implementation `less_than_string` of an
 overriding TBP for the deferred binding. The constructor function
 (promised earlier, but not yet delivered) also needs to be updated to
 enable creation of objects of the extended type.
@@ -1556,7 +1559,7 @@ The compilation order for separate files would be:
 
 # Performance and ease of use
 
-# Functions with parameters  {#sec:functions_with_parameters}
+# Functions with parameters {#sec:functions_with_parameters}
 
 ## A type definition for invocation of a general function
 
@@ -1678,7 +1681,7 @@ PURE FUNCTION psin_array(x, param) RESULT(r)
 END FUNCTION psin_array
 ```
 
-is desirable, since the overheads specified above only arise *once*, and
+is desirable, since the overheads specified above only arise _once_, and
 the actual calculational code (marked "kernel" in the above box) is
 amenable to array-related compiler optimizations (the specifics of which
 depend on both hardware architecture and working set size).
@@ -1789,7 +1792,7 @@ END FUNCTION create_pfunc_type_array
 ```
 
 Disambiguation is possible due to the sufficiently different interfaces
-of the procedure arguments.[^Richardson_comment01]
+of the procedure arguments.[^richardson_comment01]
 
 ## Using the function type
 
@@ -1814,7 +1817,7 @@ WRITE(*,*) pfunc_obj%f(piby4_arr)
 Omitting a `param` in a constructor is fine, as long as the target
 functions cater for the dummy argument's non-presence.
 
-*Hint:* The framework's implementation makes use of the fact that an
+_Hint:_ The framework's implementation makes use of the fact that an
 unallocated actual argument associated with an `OPTIONAL` dummy argument
 is considered not present. Once conditional expressions are implemented
 in compilers, the code will be appropriately reworked, since use of this
@@ -1859,15 +1862,17 @@ programmer
   object is not (implicitly) passed to the procedure at all in a TBP
   invocation.
 
-[^MFE]: Metcalf, Michael; Reid, John; Cohen, Malcolm; Bader, Reinhold (2023).
-*Modern Fortran Explained.* Numerical Mathematics and Scientific Computation.
-Oxford University Press.
-[ISBN 978-0-19-887657-1](https://en.wikipedia.org/wiki/Special:BookSources/978-0-19-887657-1).
+[^mfe]:
+    Metcalf, Michael; Reid, John; Cohen, Malcolm; Bader, Reinhold (2023).
+    _Modern Fortran Explained._ Numerical Mathematics and Scientific Computation.
+    Oxford University Press.
+    [ISBN 978-0-19-887657-1](https://en.wikipedia.org/wiki/Special:BookSources/978-0-19-887657-1).
 
-[^Richardson_comment01]: Brad Richardson
+[^richardson_comment01]:
+    Brad Richardson
     [comments](https://fortran-lang.discourse.group/t/baders-draft-about-oop-and-fortran-bader-intended-for-wikipedia/8539/3)
     the two functions are _sufficiently different_ only because their results
-    differ in rank.  This pattern does not necessarily work in the general case,
+    differ in rank. This pattern does not necessarily work in the general case,
     i.e. that the procedures are not both functions with different type, kind or
     rank of their results.
 
