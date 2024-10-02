@@ -59,8 +59,8 @@ Fortran term) with an `ALLOCATABLE` component consider
 
 ```f90
 TYPE :: polynomial
-   PRIVATE
-   REAL, ALLOCATABLE :: a(:)
+  PRIVATE
+  REAL, ALLOCATABLE :: a(:)
 END TYPE
 ```
 
@@ -90,9 +90,9 @@ a Fortran term) with a `POINTER` component consider
 
 ```f90
 TYPE :: sorted_list
-   PRIVATE
-   TYPE(sortable) :: data
-   TYPE(sorted_list), POINTER :: next => null()
+  PRIVATE
+  TYPE(sortable) :: data
+  TYPE(sorted_list), POINTER :: next => null()
 END TYPE
 ```
 
@@ -107,11 +107,11 @@ the functionality supplied with that type:
 
 ```f90
 TYPE, PUBLIC :: sortable
-   CHARACTER(len=:), ALLOCATABLE :: string
+  CHARACTER(len=:), ALLOCATABLE :: string
 END TYPE
 
-INTERFACE OPERATOR(<)          ! compare two objects of type sortable
-   MODULE PROCEDURE less_than  ! implementation not shown here
+INTERFACE OPERATOR(<)         ! compare two objects of type sortable
+  MODULE PROCEDURE less_than  ! implementation not shown here
 END INTERFACE
 ```
 
@@ -224,8 +224,8 @@ might read
 ```f90
 INTERFACE polynomial
 ! overload to assure correct lower bound when creating a polynomial object
-   MODULE PROCEDURE :: create_polynomial
-   ... ! further specifics as needed
+  MODULE PROCEDURE :: create_polynomial
+  ... ! further specifics as needed
 END INTERFACE
 ```
 
@@ -234,12 +234,12 @@ the module) might read
 
 ```f90
 PURE TYPE(polynomial) FUNCTION create_polynomial(a)
-   REAL, INTENT(in) :: a(0:)
-   INTEGER :: degree(1)
+  REAL, INTENT(in) :: a(0:)
+  INTEGER :: degree(1)
 
-   degree = findloc( a /= 0.0, value=.true., back=.true. ) - 1
-   ALLOCATE( create_polynomial%a(0:degree(1)) )
-   create_polynomial%a(0:) = a(0:degree(1))
+  degree = findloc( a /= 0.0, value=.true., back=.true. ) - 1
+  ALLOCATE( create_polynomial%a(0:degree(1)) )
+  create_polynomial%a(0:) = a(0:degree(1))
 END FUNCTION
 ```
 
@@ -253,8 +253,8 @@ For the `sorted_list` type the interface block might read
 INTERFACE sorted_list
 ! the default constructor is unavailable because the type is opaque
 ! the specific has a different signature than the structure constructor
-   MODULE PROCEDURE :: create_sorted_list
-   ... ! further specifics as needed
+  MODULE PROCEDURE :: create_sorted_list
+  ... ! further specifics as needed
 END INTERFACE
 ```
 
@@ -262,14 +262,14 @@ with the implementation of `create_sorted_list` as follows:
 
 ```f90
 PURE FUNCTION create_sorted_list(item_array) RESULT(head)
-   TYPE(sortable), INTENT(in) :: item_array(:)
-   TYPE(sorted_list) :: head
-   INTEGER :: i
+  TYPE(sortable), INTENT(in) :: item_array(:)
+  TYPE(sorted_list) :: head
+  INTEGER :: i
 
-   DO i = 1, size(item_array)
-      CALL add_to_sorted_list(head, item_array(i))
-      ! handles tedious details of pointer fiddling
-   END DO
+  DO i = 1, size(item_array)
+    CALL add_to_sorted_list(head, item_array(i))
+    ! handles tedious details of pointer fiddling
+  END DO
 END FUNCTION
 ```
 
@@ -358,23 +358,23 @@ assignment of `sorted_list` objects:
 
 ```f90
 SUBROUTINE assign_sorted_list(to, from)
-   TYPE(sorted_list), INTENT(in), TARGET :: from
-   TYPE(sorted_list), INTENT(out), TARGET :: to  ! finalizer is executed on entry,
-                                                 ! see below for discussion of this.
-   TYPE(sorted_list), POINTER :: p, q
+  TYPE(sorted_list), INTENT(in), TARGET :: from
+  TYPE(sorted_list), INTENT(out), TARGET :: to  ! finalizer is executed on entry,
+                                               ! see below for discussion of this.
+  TYPE(sorted_list), POINTER :: p, q
 
-   p => from; q => to
+  p => from; q => to
 
-   deep_copy : DO
-      IF ( associated(p) ) THEN
-         q%data = p%data
-      ELSE
-         EXIT deep_copy
-      END IF
-      p => p%next
-      IF ( associated(p) ) ALLOCATE( q%next )
-      q => q%next
-   END DO deep_copy
+  deep_copy : DO
+    IF ( associated(p) ) THEN
+      q%data = p%data
+    ELSE
+      EXIT deep_copy
+    END IF
+    p => p%next
+    IF ( associated(p) ) ALLOCATE( q%next )
+    q => q%next
+  END DO deep_copy
 END SUBROUTINE
 ```
 
@@ -392,11 +392,11 @@ certain situations. For the `sorted_list` type, this would look like
 
 ```f90
 TYPE :: sorted_list
-   PRIVATE
-   TYPE(sortable) :: data
-   TYPE(sorted_list), POINTER :: next => null()
+  PRIVATE
+  TYPE(sortable) :: data
+  TYPE(sorted_list), POINTER :: next => null()
 CONTAINS
-   FINAL :: delete_sorted_list
+  FINAL :: delete_sorted_list
 END TYPE
 ```
 
@@ -407,11 +407,11 @@ be as follows:
 
 ```f90
 PURE RECURSIVE SUBROUTINE delete_sorted_list(list)
-   TYPE(sorted_list), INTENT(inout) :: list
+  TYPE(sorted_list), INTENT(inout) :: list
 
-   IF ( associated(list%next) ) THEN
-      DEALLOCATE( list%next )  ! invokes the finalizer recursively
-   END IF
+  IF ( associated(list%next) ) THEN
+    DEALLOCATE( list%next )  ! invokes the finalizer recursively
+  END IF
 END SUBROUTINE
 ```
 
@@ -549,19 +549,19 @@ around these, the `BLOCK` construct can be used:
 
 ```f90
 PROGRAM test_sorted_list
-   USE mod_sortable
-   USE mod_sorted_list
-   IMPLICIT none
-   :
-   work : BLOCK
-      TYPE(sortable) :: array(items)
-      TYPE(sorted_list) :: my_list, ...
-      : ! initialize array
+  USE mod_sortable
+  USE mod_sorted_list
+  IMPLICIT none
+  :
+  work : BLOCK
+    TYPE(sortable) :: array(items)
+    TYPE(sorted_list) :: my_list, ...
+    : ! initialize array
 
-      my_list = sorted_list(array)
-      :
-   END BLOCK work  ! finalizer is executed on my_list, ...
-   :
+    my_list = sorted_list(array)
+    :
+  END BLOCK work  ! finalizer is executed on my_list, ...
+  :
 END PROGRAM
 ```
 
@@ -589,21 +589,21 @@ implement the multiplication of two polynomials:
 
 ```f90
 PURE TYPE(polynomial) FUNCTION multiply_polynomial(p1, p2)
-   TYPE(polynomial), INTENT(in) :: p1, p2
-   INTEGER :: j, l, lmax
+  TYPE(polynomial), INTENT(in) :: p1, p2
+  INTEGER :: j, l, lmax
 
-   lmax = ubound(p1%a,1) + ubound(p2%a,1)
-   ALLOCATE( multiply_polynomial%a(0:lmax) )
+  lmax = ubound(p1%a,1) + ubound(p2%a,1)
+  ALLOCATE( multiply_polynomial%a(0:lmax) )
 
-   ASSOCIATE( a => p1%a, b => p2%a, c => multiply_polynomial%a, &
-              jmax => ubound(p1%a,1), kmax => ubound(p2%a,1) )  ! association list
-      DO l = 0, lmax
-         c(l) = 0
-         DO j = max(0, l-kmax), min(jmax, l)
-            c(l) = c(l) + a(j) * b(l-j)
-         END DO
+  ASSOCIATE( a => p1%a, b => p2%a, c => multiply_polynomial%a, &
+    jmax => ubound(p1%a,1), kmax => ubound(p2%a,1) )  ! association list
+    DO l = 0, lmax
+      c(l) = 0
+      DO j = max(0, l-kmax), min(jmax, l)
+        c(l) = c(l) + a(j) * b(l-j)
       END DO
-   END ASSOCIATE
+    END DO
+  END ASSOCIATE
 END FUNCTION
 ```
 
@@ -641,7 +641,7 @@ suitably written named interface:
 
 ```f90
 INTERFACE WRITE(formatted)
-   MODULE PROCEDURE write_fmt_list
+  MODULE PROCEDURE write_fmt_list
 END INTERFACE
 ```
 
@@ -736,33 +736,33 @@ on `sorted_list` objects:
 
 ```f90
 RECURSIVE SUBROUTINE write_fmt_list(dtv, unit, iotype, v_list, iostat, iomsg)
-   CLASS(sorted_list), INTENT(in) :: dtv
-   INTEGER, INTENT(in) :: unit, v_list(:)
-   CHARACTER(len=*), INTENT(in) :: iotype
-   INTEGER, INTENT(out) :: iostat
-   CHARACTER(len=*), INTENT(inout) :: iomsg
-   CHARACTER(len=2) :: next_component
+  CLASS(sorted_list), INTENT(in) :: dtv
+  INTEGER, INTENT(in) :: unit, v_list(:)
+  CHARACTER(len=*), INTENT(in) :: iotype
+  INTEGER, INTENT(out) :: iostat
+  CHARACTER(len=*), INTENT(inout) :: iomsg
+  CHARACTER(len=2) :: next_component
 
-   IF ( associated(dtv%next) ) THEN
-      WRITE(next_component, fmt='("T,")')
-   ELSE
-      WRITE(next_component, fmt='("F")')
-   END IF
-   SELECT CASE (iotype)
-   CASE ('LISTDIRECTED')
-      WRITE(unit, fmt=*, delim='quote', iostat=iostat, iomsg=iomsg) &
-            dtv%data%string
-   CASE ('NAMELIST')
-      WRITE(unit, fmt=*, iostat=iostat, iomsg=iomsg) '"', &
-            dtv%data%string, '",', trim(next_component)
-   CASE default
-      iostat = 129
-      iomsg = 'iotype ' // trim(iotype) // ' not implemented'
-      RETURN
-   END SELECT
-   IF ( associated(dtv%next) ) THEN
-      CALL write_fmt_list(dtv%next, unit, iotype, v_list, iostat, iomsg)
-   END IF
+  IF ( associated(dtv%next) ) THEN
+    WRITE(next_component, fmt='("T,")')
+  ELSE
+    WRITE(next_component, fmt='("F")')
+  END IF
+  SELECT CASE (iotype)
+  CASE ('LISTDIRECTED')
+    WRITE(unit, fmt=*, delim='quote', iostat=iostat, iomsg=iomsg) &
+      dtv%data%string
+  CASE ('NAMELIST')
+    WRITE(unit, fmt=*, iostat=iostat, iomsg=iomsg) '"', &
+      dtv%data%string, '",', trim(next_component)
+  CASE default
+    iostat = 129
+    iomsg = 'iotype ' // trim(iotype) // ' not implemented'
+    RETURN
+  END SELECT
+  IF ( associated(dtv%next) ) THEN
+    CALL write_fmt_list(dtv%next, unit, iotype, v_list, iostat, iomsg)
+  END IF
 END SUBROUTINE
 ```
 
@@ -801,8 +801,8 @@ which can quite generally represent a physical body:
 
 ```f90
 TYPE :: body
-   REAL :: mass
-   REAL :: pos(3), vel(3)
+  REAL :: mass
+  REAL :: pos(3), vel(3)
 END TYPE
 :
 TYPE(body) :: my_basketball = body(1.5, [0.0, 0.0, 2.0], [10.0, 0.0, 0.0])
@@ -813,16 +813,16 @@ change of mass on a `body` object:
 
 ```f90
 PURE SUBROUTINE kick(a_body, dp)
-   TYPE(body), INTENT(inout) :: a_body
-   REAL, intent(in) :: dp(3)
+  TYPE(body), INTENT(inout) :: a_body
+  REAL, intent(in) :: dp(3)
 
-   a_body%vel(:) = a_body%vel(:) + dp(:) / a_body%mass
+  a_body%vel(:) = a_body%vel(:) + dp(:) / a_body%mass
 END SUBROUTINE
 PURE SUBROUTINE accrete(a_body, dm)
-   TYPE(body), INTENT(inout) :: a_body
-   REAL, intent(in) :: dm
+  TYPE(body), INTENT(inout) :: a_body
+  REAL, intent(in) :: dm
 
-   a_body%mass = a_body%mass + dm
+  a_body%mass = a_body%mass + dm
 END SUBROUTINE accrete
 ```
 
@@ -838,7 +838,7 @@ existing one (the **parent** type):
 
 ```f90
 TYPE, EXTENDS(body) :: charged_body
-   REAL :: charge
+  REAL :: charge
 END TYPE
 ```
 
@@ -966,10 +966,10 @@ now could consider the following:
 
 ```f90
 SUBROUTINE recharge(a_charged_body, dq)
-   TYPE(charged_body), INTENT(inout) :: a_charged_body
-   REAL, INTENT(in) :: dq
+  TYPE(charged_body), INTENT(inout) :: a_charged_body
+  REAL, INTENT(in) :: dq
 
-   a_charged_body%charge = a_charged_body%charge + dq
+  a_charged_body%charge = a_charged_body%charge + dq
 END SUBROUTINE
 ```
 
@@ -983,9 +983,9 @@ Fortran term), based on writing **class guards** instead of type guards:
 ```f90
 SELECT TYPE (a_polymorphic_body)
 CLASS IS (charged_body)  ! new declared type for a_polymorphic_body
-   CALL recharge(a_polymorphic_body, dq=1.0e-5)
+  CALL recharge(a_polymorphic_body, dq=1.0e-5)
 CLASS default
-   WRITE(*,*) 'INFO: object a_polymorphic_body was not modified.'
+  WRITE(*,*) 'INFO: object a_polymorphic_body was not modified.'
 END SELECT
 ```
 
@@ -1018,7 +1018,7 @@ ALLOCATE( a_unlimited, source=2.5E4)  ! dynamic type becomes real
 
 SELECT TYPE ( a_unlimited )
 TYPE IS (REAL)
-   WRITE(*,*) 'a_unlimited is of intrinsic real type with value ', a_unlimited
+  WRITE(*,*) 'a_unlimited is of intrinsic real type with value ', a_unlimited
 END SELECT
 
 DEALLOCATE( a_unlimited )
@@ -1026,7 +1026,7 @@ ALLOCATE( a_unlimited, source=a_proton) )  ! dynamic type becomes charged_body
 
 SELECT TYPE ( a_unlimited )
 TYPE IS (charged_body)
-   WRITE(*,*) 'a_unlimited is a charged_body with value ', a_unlimited
+  WRITE(*,*) 'a_unlimited is a charged_body with value ', a_unlimited
 END SELECT
 ```
 
@@ -1054,9 +1054,9 @@ the module `mod_utility_types`) reads
 
 ```f90
 TYPE :: any_object
-   CHARACTER(len=:), ALLOCATABLE :: description
-   CLASS(*), ALLOCATABLE :: value(:)
-   INTEGER, ALLOCATABLE :: shape(:)
+  CHARACTER(len=:), ALLOCATABLE :: description
+  CLASS(*), ALLOCATABLE :: value(:)
+  INTEGER, ALLOCATABLE :: shape(:)
 END TYPE
 ```
 
@@ -1074,43 +1074,43 @@ components of a structure:
 
 ```f90
 MODULE mod_wtype
-   USE mod_utility_types, ONLY : initialize => any_object
+  USE mod_utility_types, ONLY : initialize => any_object
 
-   TYPE :: wtype
-      PRIVATE
-      INTEGER :: nonzeros = -1
-      REAL, ALLOCATABLE :: w(:,:)
-   END TYPE wtype
+  TYPE :: wtype
+    PRIVATE
+    INTEGER :: nonzeros = -1
+    REAL, ALLOCATABLE :: w(:,:)
+  END TYPE wtype
 CONTAINS
-   SUBROUTINE setup_wtype(a_wtype, a_component)
-      ! in-place setting to avoid memory bursts for large objects
-      TYPE(wtype), INTENT(inout) :: a_wtype
-      TYPE(initialize), INTENT(in), TARGET :: a_component
-      INTEGER :: wsize
-      REAL, POINTER :: pw(:,:)
+  SUBROUTINE setup_wtype(a_wtype, a_component)
+    ! in-place setting to avoid memory bursts for large objects
+    TYPE(wtype), INTENT(inout) :: a_wtype
+    TYPE(initialize), INTENT(in), TARGET :: a_component
+    INTEGER :: wsize
+    REAL, POINTER :: pw(:,:)
 
-      SELECT CASE (a_component%description)
-      CASE ("nonzeros")
-         IF ( allocated(a_component%value) ) THEN
-            SELECT TYPE ( nonzeros => a_component%value(1) )
-            TYPE IS (INTEGER)
-               a_wtype%nonzeros = nonzeros
-            END SELECT
-         END IF
-      CASE ("w")
-         IF ( allocated(a_component%value) .AND. allocated(a_component%shape) ) THEN
-            wsize = size(a_component%value)
-            IF ( wsize >= product(a_component%shape) ) THEN
-               SELECT TYPE ( w => a_component%value )
-               TYPE IS (REAL)
-                  pw(1:a_component%shape(1), 1:a_component%shape(2)) => w
-                  a_wtype%w = pw
-               END SELECT
-            END IF
-         END IF
-      END SELECT
-   END SUBROUTINE setup_wtype
-   :
+    SELECT CASE (a_component%description)
+     CASE ("nonzeros")
+      IF ( allocated(a_component%value) ) THEN
+        SELECT TYPE ( nonzeros => a_component%value(1) )
+         TYPE IS (INTEGER)
+          a_wtype%nonzeros = nonzeros
+        END SELECT
+      END IF
+     CASE ("w")
+      IF ( allocated(a_component%value) .AND. allocated(a_component%shape) ) THEN
+        wsize = size(a_component%value)
+        IF ( wsize >= product(a_component%shape) ) THEN
+          SELECT TYPE ( w => a_component%value )
+           TYPE IS (REAL)
+            pw(1:a_component%shape(1), 1:a_component%shape(2)) => w
+            a_wtype%w = pw
+          END SELECT
+        END IF
+      END IF
+    END SELECT
+  END SUBROUTINE setup_wtype
+  :
 END MODULE
 ```
 
@@ -1154,8 +1154,8 @@ INTEGER :: ndim
 ndim = ...
 
 ASSOCIATE ( my_data => [ ((real (max(0, min(i-j+2, j-i+2))), j=1, ndim), i=1, ndim) ] )
-   c_nz = initialize("nonzeros", count(my_data /= 0))
-   c_w = initialize("w", my_data, [ ndim, ndim ] )
+  c_nz = initialize("nonzeros", count(my_data /= 0))
+  c_w = initialize("w", my_data, [ ndim, ndim ] )
 END ASSOCIATE
 
 CALL setup_wtype(my_wtype, c_nz)
@@ -1175,10 +1175,10 @@ For the type `body`, the augmented type definition reads
 
 ```f90
 TYPE :: body
-   REAL :: mass
-   REAL :: pos(3), vel(3)
+  REAL :: mass
+  REAL :: pos(3), vel(3)
 CONTAINS
-   PROCEDURE :: update => update_body
+  PROCEDURE :: update => update_body
 END TYPE
 ```
 
@@ -1190,27 +1190,27 @@ earlier, which in view of the context is locally renamed to `change`:
 
 ```f90
 SUBROUTINE update_body(a_body, a_change)
-   CLASS(body), INTENT(inout) :: a_body
-   TYPE(change), INTENT(in) :: a_change
-   IF ( allocated(a_change%description) .AND. allocated(a_change%value) ) THEN
-     SELECT CASE ( trim(a_change%description) )
+  CLASS(body), INTENT(inout) :: a_body
+  TYPE(change), INTENT(in) :: a_change
+  IF ( allocated(a_change%description) .AND. allocated(a_change%value) ) THEN
+    SELECT CASE ( trim(a_change%description) )
      CASE ('mass')
-        SELECT TYPE ( delta => a_change%value(1) )
-        TYPE IS (real)
-           CALL accrete(a_body, delta)
-        END SELECT
+      SELECT TYPE ( delta => a_change%value(1) )
+       TYPE IS (real)
+        CALL accrete(a_body, delta)
+      END SELECT
      CASE ('momentum')
-        SELECT TYPE ( delta => a_change%value )
-        TYPE IS (real)
-           IF ( size(delta) >= 3 ) CALL kick(a_body, delta(1:3))
-        END SELECT
+      SELECT TYPE ( delta => a_change%value )
+       TYPE IS (real)
+        IF ( size(delta) >= 3 ) CALL kick(a_body, delta(1:3))
+      END SELECT
      CASE ('position')
-        SELECT TYPE ( delta => a_change%value )
-        TYPE IS (real)
-           IF ( size(delta) >= 3) a_body%pos = a_body%pos + delta(1:3)
-        END SELECT
-     END SELECT
-   END IF
+      SELECT TYPE ( delta => a_change%value )
+       TYPE IS (real)
+        IF ( size(delta) >= 3) a_body%pos = a_body%pos + delta(1:3)
+      END SELECT
+    END SELECT
+  END IF
 END SUBROUTINE
 ```
 
@@ -1252,9 +1252,9 @@ to **override** the parent type's bound procedure:
 
 ```f90
 TYPE, EXTENDS(body) :: charged_body
-   REAL :: charge
+  REAL :: charge
 CONTAINS
-   PROCEDURE :: update => update_charged_body
+  PROCEDURE :: update => update_charged_body
 END TYPE
 ```
 
@@ -1262,21 +1262,21 @@ with the procedure defined as follows:
 
 ```f90
 SUBROUTINE update_charged_body(a_body, a_change)
-   CLASS(charged_body) :: a_body
-   TYPE(change) :: a_change
+  CLASS(charged_body) :: a_body
+  TYPE(change) :: a_change
 
-   IF ( allocated(a_change%description) .AND. allocated(a_change%value) ) THEN
-      SELECT CASE ( trim(a_change%description) )
-      CASE ('charge')
-         SELECT TYPE ( delta => a_change%value(1) )
-         TYPE IS (real)
-            a_body%charge = a_body%charge + delta
-         END SELECT
-      CASE default
-         CALL a_body%body%update(a_change)
-         ! assure that a change to a parent component is dealt with
+  IF ( allocated(a_change%description) .AND. allocated(a_change%value) ) THEN
+    SELECT CASE ( trim(a_change%description) )
+     CASE ('charge')
+      SELECT TYPE ( delta => a_change%value(1) )
+       TYPE IS (real)
+        a_body%charge = a_body%charge + delta
       END SELECT
-   END IF
+     CASE default
+      CALL a_body%body%update(a_change)
+      ! assure that a change to a parent component is dealt with
+    END SELECT
+  END IF
 END SUBROUTINE
 ```
 
@@ -1332,8 +1332,8 @@ an **abstract type**
 ```f90
 TYPE, ABSTRACT :: sortable
 CONTAINS
-   PROCEDURE(compare), DEFERRED :: less_than
-   ! ... more to follow
+  PROCEDURE(compare), DEFERRED :: less_than
+  ! ... more to follow
 END TYPE
 ```
 
@@ -1344,11 +1344,11 @@ procedure, but is characterized by an **abstract interface**:
 
 ```f90
 ABSTRACT INTERFACE
-   PURE LOGICAL FUNCTION compare(s1, s2)
-      IMPORT :: sortable
-      CLASS(sortable), INTENT(in) :: s1, s2
-      ! dispatch is via the first argument
-   END FUNCTION
+  PURE LOGICAL FUNCTION compare(s1, s2)
+    IMPORT :: sortable
+    CLASS(sortable), INTENT(in) :: s1, s2
+    ! dispatch is via the first argument
+  END FUNCTION
 END INTERFACE
 ```
 
@@ -1358,7 +1358,7 @@ constructor will be needed
 
 ```f90
 INTERFACE sortable
-   PROCEDURE :: create_sortable
+  PROCEDURE :: create_sortable
 END INTERFACE
 ```
 
@@ -1378,12 +1378,12 @@ programming technique, which is also known as **dependency inversion**
 
    ```f90
    TYPE, PUBLIC :: sorted_list
-      PRIVATE
-      CLASS(sortable), ALLOCATABLE :: data
-      ! changed to refer to abstract type
-      TYPE(sorted_list), POINTER :: next => null()
+     PRIVATE
+     CLASS(sortable), ALLOCATABLE :: data
+     ! changed to refer to abstract type
+     TYPE(sorted_list), POINTER :: next => null()
    CONTAINS
-      FINAL :: delete_sorted_list
+     FINAL :: delete_sorted_list
    END TYPE
    ```
 
@@ -1396,9 +1396,9 @@ as outlined in 2. below.
 
    ```f90
    TYPE, PUBLIC, EXTENDS(sortable) :: sortable_string
-      CHARACTER(len=:), ALLOCATABLE :: string
+     CHARACTER(len=:), ALLOCATABLE :: string
    CONTAINS
-      PROCEDURE :: less_than => less_than_string
+     PROCEDURE :: less_than => less_than_string
    END TYPE
    ```
 
@@ -1415,8 +1415,8 @@ can be provided by creating a **generic** type-bound procedure:
 ```f90
 TYPE, ABSTRACT :: sortable
 CONTAINS
-   PROCEDURE(compare), DEFERRED :: less_than
-   GENERIC :: OPERATOR(<) => less_than
+  PROCEDURE(compare), DEFERRED :: less_than
+  GENERIC :: OPERATOR(<) => less_than
 END TYPE
 ```
 
@@ -1486,10 +1486,10 @@ declared in `mod_sortable`:
 
 ```f90
 INTERFACE
-   MODULE FUNCTION create_sortable(init) RESULT(r)
-      CLASS(sortable), ALLOCATABLE :: r
-      TYPE(initialize), INTENT(in) :: init
-   END FUNCTION
+  MODULE FUNCTION create_sortable(init) RESULT(r)
+    CLASS(sortable), ALLOCATABLE :: r
+    TYPE(initialize), INTENT(in) :: init
+  END FUNCTION
 END INTERFACE
 ```
 
@@ -1516,19 +1516,19 @@ The submodule containing the implementation then reads as follows:
 ```f90
 SUBMODULE (mod_sortable) smod_constructor
 CONTAINS
-   MODULE PROCEDURE create_sortable
-      USE mod_sortable_extensions, ONLY : sortable_string
+  MODULE PROCEDURE create_sortable
+  USE mod_sortable_extensions, ONLY : sortable_string
 
-      IF ( allocated(init%description) .AND. allocated(init%value) ) THEN
-         SELECT CASE (init%description)
-         CASE ('sortable_string')
-            SELECT TYPE ( value => init%value(1) )
-            TYPE IS (CHARACTER(len=*))
-               ALLOCATE( r, source=sortable_string(value) )
-            END SELECT
-         END SELECT
-      END IF
-   END PROCEDURE
+  IF ( allocated(init%description) .AND. allocated(init%value) ) THEN
+    SELECT CASE (init%description)
+     CASE ('sortable_string')
+      SELECT TYPE ( value => init%value(1) )
+       TYPE IS (CHARACTER(len=*))
+        ALLOCATE( r, source=sortable_string(value) )
+      END SELECT
+    END SELECT
+  END IF
+END PROCEDURE
 END SUBMODULE
 ```
 
@@ -1593,19 +1593,19 @@ type definition of sufficient generality:
 
 ```f90
 TYPE, PUBLIC :: pfunc_type
-   PRIVATE
-   PROCEDURE(pfunc), POINTER, NOPASS :: fp => null()
-   : ! shown later
-   CLASS(*), ALLOCATABLE :: param
+  PRIVATE
+  PROCEDURE(pfunc), POINTER, NOPASS :: fp => null()
+  : ! shown later
+  CLASS(*), ALLOCATABLE :: param
 CONTAINS
-   : ! shown later
+  : ! shown later
 END type pfunc_type
 
 ABSTRACT INTERFACE
-   PURE REAL FUNCTION pfunc(x, param)
-      REAL, INTENT(in) :: x
-      CLASS(*), INTENT(in), OPTIONAL :: param
-   END FUNCTION pfunc
+  PURE REAL FUNCTION pfunc(x, param)
+    REAL, INTENT(in) :: x
+    CLASS(*), INTENT(in), OPTIONAL :: param
+  END FUNCTION pfunc
 END INTERFACE
 ```
 
@@ -1649,19 +1649,19 @@ example $\sin(\lambda x)$:
 
 ```f90
 PURE REAL FUNCTION psin(x, param)
-   REAL, INTENT(in) :: x
-   CLASS(*), INTENT(in), OPTIONAL :: param
-   REAL :: factor
-   factor = 1.
-   IF ( present(param) ) THEN
-      SELECT TYPE ( param )
-      TYPE IS (REAL)
-         factor = param
-      TYPE IS (INTEGER)
-         factor = real(param)
-      END SELECT
-   END IF
-   psin = sin(factor*x)
+  REAL, INTENT(in) :: x
+  CLASS(*), INTENT(in), OPTIONAL :: param
+  REAL :: factor
+  factor = 1.
+  IF ( present(param) ) THEN
+    SELECT TYPE ( param )
+     TYPE IS (REAL)
+      factor = param
+     TYPE IS (INTEGER)
+      factor = real(param)
+    END SELECT
+  END IF
+  psin = sin(factor*x)
 END FUNCTION psin
 ```
 
@@ -1678,20 +1678,20 @@ array-based version of the function
 
 ```f90
 PURE FUNCTION psin_array(x, param) RESULT(r)
-   REAL, INTENT(in) :: x(:)
-   REAL :: r(size(x))
-   CLASS(*), INTENT(in), OPTIONAL :: param
-   REAL :: factor
-   factor = 1.
-   IF ( present(param) ) THEN
-      SELECT TYPE ( param )
-      TYPE IS (REAL)
-         factor = param
-      TYPE IS (INTEGER)
-         factor = real(param)
-      END SELECT
-   END IF
-   r = sin(factor*x)  ! kernel
+  REAL, INTENT(in) :: x(:)
+  REAL :: r(size(x))
+  CLASS(*), INTENT(in), OPTIONAL :: param
+  REAL :: factor
+  factor = 1.
+  IF ( present(param) ) THEN
+    SELECT TYPE ( param )
+     TYPE IS (REAL)
+      factor = param
+     TYPE IS (INTEGER)
+      factor = real(param)
+    END SELECT
+  END IF
+  r = sin(factor*x)  ! kernel
 END FUNCTION psin_array
 ```
 
@@ -1712,25 +1712,25 @@ interfaces, reads
 
 ```f90
 TYPE, PUBLIC :: pfunc_type
-   PRIVATE
-   PROCEDURE(pfunc), POINTER, NOPASS :: fp => null()
-   PROCEDURE(pfunc_array), POINTER, NOPASS :: fp_array => null()
-   CLASS(*), ALLOCATABLE :: param
+  PRIVATE
+  PROCEDURE(pfunc), POINTER, NOPASS :: fp => null()
+  PROCEDURE(pfunc_array), POINTER, NOPASS :: fp_array => null()
+  CLASS(*), ALLOCATABLE :: param
 CONTAINS
-   PROCEDURE, PASS, PRIVATE, NON_OVERRIDABLE :: f_scalar, f_array
-   GENERIC :: f => f_scalar, f_array
+  PROCEDURE, PASS, PRIVATE, NON_OVERRIDABLE :: f_scalar, f_array
+  GENERIC :: f => f_scalar, f_array
 END type pfunc_type
 
 ABSTRACT INTERFACE
-   PURE REAL FUNCTION pfunc(x, param)
-      REAL, INTENT(in) :: x
-      CLASS(*), INTENT(in), OPTIONAL :: param
-   END FUNCTION pfunc
-   PURE FUNCTION pfunc_array(x, param) RESULT(r)
-      REAL, INTENT(in) :: x(:)
-      REAL :: r(size(x))
-      CLASS(*), INTENT(in), OPTIONAL :: param
-   END FUNCTION pfunc_array
+  PURE REAL FUNCTION pfunc(x, param)
+    REAL, INTENT(in) :: x
+    CLASS(*), INTENT(in), OPTIONAL :: param
+  END FUNCTION pfunc
+  PURE FUNCTION pfunc_array(x, param) RESULT(r)
+    REAL, INTENT(in) :: x(:)
+    REAL :: r(size(x))
+    CLASS(*), INTENT(in), OPTIONAL :: param
+  END FUNCTION pfunc_array
 END INTERFACE
 ```
 
@@ -1741,32 +1741,32 @@ specifics `f_scalar` and `f_array` for this read
 
 ```f90
 REAL FUNCTION f_scalar(this, x)
-   CLASS(pfunc_type), INTENT(in) :: this
-   REAL, INTENT(in) :: x
+  CLASS(pfunc_type), INTENT(in) :: this
+  REAL, INTENT(in) :: x
 
-   IF ( associated(this%fp) ) THEN
-      f_scalar = this%fp(x, this%param)
-   ELSE IF ( associated(this%fp_array) ) THEN
-      ASSOCIATE ( f_array => this%fp_array([x], this%param) )
-         f_scalar = f_array(1)
-      END ASSOCIATE
-   ELSE
-      ERROR STOP 'pfunc_type callback: uninitialized object'
-   END IF
+  IF ( associated(this%fp) ) THEN
+    f_scalar = this%fp(x, this%param)
+  ELSE IF ( associated(this%fp_array) ) THEN
+    ASSOCIATE ( f_array => this%fp_array([x], this%param) )
+      f_scalar = f_array(1)
+    END ASSOCIATE
+  ELSE
+    ERROR STOP 'pfunc_type callback: uninitialized object'
+  END IF
 END FUNCTION f_scalar
 FUNCTION f_array(this, x) RESULT(r)
-   CLASS(pfunc_type), INTENT(in) :: this
-   REAL, INTENT(in) :: x(:)
-   REAL :: r(size(x))
+  CLASS(pfunc_type), INTENT(in) :: this
+  REAL, INTENT(in) :: x(:)
+  REAL :: r(size(x))
 
-   ! Note that support for the scalar version is omitted here, since
-   ! the procedure call overhead, including type resolution, would
-   ! significantly impact performance.
-   IF ( associated(this%fp_array) ) THEN
-      r = this%fp_array(x, this%param)
-   ELSE
-      ERROR STOP 'pfunc_type callback: uninitialized object'
-   END IF
+  ! Note that support for the scalar version is omitted here, since
+  ! the procedure call overhead, including type resolution, would
+  ! significantly impact performance.
+  IF ( associated(this%fp_array) ) THEN
+    r = this%fp_array(x, this%param)
+  ELSE
+    ERROR STOP 'pfunc_type callback: uninitialized object'
+  END IF
 END FUNCTION f_array
 ```
 
@@ -1779,8 +1779,8 @@ The structure constructor for the type is overloaded
 
 ```f90
 INTERFACE pfunc_type
-   MODULE PROCEDURE create_pfunc_type
-   MODULE PROCEDURE create_pfunc_type_array
+  MODULE PROCEDURE create_pfunc_type
+  MODULE PROCEDURE create_pfunc_type_array
 END INTERFACE pfunc_type
 ```
 
@@ -1788,20 +1788,20 @@ with the following specific functions:
 
 ```f90
 TYPE(pfunc_type) FUNCTION create_pfunc_type(fp, param)
-   PROCEDURE(pfunc) :: fp
-   CLASS(*), INTENT(in), OPTIONAL :: param
-   create_pfunc_type%fp => fp
-   IF ( present(param) ) THEN
-      ALLOCATE(create_pfunc_type%param, source=param)
-   END IF
+  PROCEDURE(pfunc) :: fp
+  CLASS(*), INTENT(in), OPTIONAL :: param
+  create_pfunc_type%fp => fp
+  IF ( present(param) ) THEN
+    ALLOCATE(create_pfunc_type%param, source=param)
+  END IF
 END FUNCTION create_pfunc_type
 TYPE(pfunc_type) FUNCTION create_pfunc_type_array(fp_array, param)
-   PROCEDURE(pfunc_array) :: fp_array
-   CLASS(*), INTENT(in), OPTIONAL :: param
-   create_pfunc_type_array%fp_array => fp_array
-   IF ( present(param) ) THEN
-      ALLOCATE(create_pfunc_type_array%param, source=param)
-   END IF
+  PROCEDURE(pfunc_array) :: fp_array
+  CLASS(*), INTENT(in), OPTIONAL :: param
+  create_pfunc_type_array%fp_array => fp_array
+  IF ( present(param) ) THEN
+    ALLOCATE(create_pfunc_type_array%param, source=param)
+  END IF
 END FUNCTION create_pfunc_type_array
 ```
 
@@ -1816,7 +1816,7 @@ and `psin_array`, using this framework is illustrated by the following:
 ```f90
 TYPE(pfunc_type) :: pfunc_obj
 REAL, PARAMETER :: piby4 = atan(1.0), &
-   piby4_arr(4) = [ piby4, 2.*piby4, 3.*piby4, 4.*piby4 ]
+  piby4_arr(4) = [ piby4, 2.*piby4, 3.*piby4, 4.*piby4 ]
 
 pfunc_obj = pfunc_type(psin, 2.)
 WRITE(*,*) pfunc_obj%f(piby4)
@@ -1846,10 +1846,10 @@ simulate the dynamics of a large ensemble of bodies. A procedure
 
 ```f90
 SUBROUTINE propagate(bodies, delta_t, force_field)
-   TYPE(body), INTENT(inout) :: bodies(:)
-   REAL, INTENT(in) :: delta_t
-   TYPE(field_type), INTENT(in) :: force_field
-   :
+  TYPE(body), INTENT(inout) :: bodies(:)
+  REAL, INTENT(in) :: delta_t
+  TYPE(field_type), INTENT(in) :: force_field
+  :
 END SUBROUTINE
 ```
 
