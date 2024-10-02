@@ -11,7 +11,8 @@ learn/intrinsics/index
 learn/oop_features_in_fortran/index
 :::
 
-This article describes how advanced Fortran language features can be
+This article by the late Reinhold Bader (1966-2024)
+describes how advanced Fortran language features can be
 applied toward object-based and object-oriented programming techniques.
 These are, of course, to a significant extent a matter of taste,
 personal style and possibly overarching program design considerations,
