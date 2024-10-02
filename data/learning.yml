@@ -276,6 +276,11 @@ books:
       - link: /learn/intrinsics/UNPACK
       - link: /learn/intrinsics/VERIFY
 
+  - title: Fortran Object Oriented Programming
+    description: Putting Fortran’s object-related features to practical use
+    category: Fortran Documentation
+    link: /learn/oop_features_in_fortran
+
 # Web links listed at the bottom of the 'Learn' landing page
 #
 reference-links:
