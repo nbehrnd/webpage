@@ -280,6 +280,8 @@ books:
     description: Putting Fortran’s object-related features to practical use
     category: Fortran Documentation
     link: /learn/oop_features_in_fortran
+    pages:
+      - /learn/oop_features_in_fortran
 
 # Web links listed at the bottom of the 'Learn' landing page
 #
