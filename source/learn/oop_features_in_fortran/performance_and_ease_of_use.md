@@ -1,6 +1,6 @@
 # Performance and ease of use
 
-## Functions with parameters {#sec:functions_with_parameters}
+## Functions with parameters
 
 ### A type definition for invocation of a general function
 
@@ -271,7 +271,7 @@ feature is recommended against.
 Returning to our earlier example type body, the next idea would be to
 simulate the dynamics of a large ensemble of bodies. A procedure
 
-```f90
+```
 subroutine propagate(bodies, delta_t, force_field)
   type(body), intent(inout) :: bodies(:)
   real, intent(in) :: delta_t

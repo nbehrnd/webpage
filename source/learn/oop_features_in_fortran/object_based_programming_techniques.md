@@ -310,7 +310,7 @@ this is that in code like
 slq = slp // slq
 ```
 
-\ -- with the overloaded concatenation operator meaning that the argument
+-- with the overloaded concatenation operator meaning that the argument
 lists are joined -- multiple deep copies need to be done (the
 implementation of the module procedure `join_lists` that supplies the
 necessary specific for `//` is not shown here; see the source

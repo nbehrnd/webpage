@@ -65,7 +65,7 @@ end type
 An object of this type
 
 ```f90
-TYPE(charged_body) :: a_proton
+type(charged_body) :: a_proton
 ```
 
 would then have the following type components:
@@ -344,7 +344,7 @@ end module
   extension is used on a larger scale, setting or modifying further
   components in the conventional way becomes rather irksome without a
   concept like that above, especially if
-  [type-bound procedures](#sec:tbp)
+  _type-bound procedures_
   with a simple _and_ uniform interface must be implemented;
 - The object `a_wtype` remains unchanged in case an unsuitable value is
   provided for `a_component`. One could add explicit error handling, but
@@ -385,7 +385,7 @@ call setup_wtype(my_wtype, c_nz)
 call setup_wtype(my_wtype, c_w)
 ```
 
-## Type-bound procedures (TBP) {#sec:tbp}
+## Type-bound procedures (TBP)
 
 To resolve the class mismatch issues arising from the use of polymorphic
 objects, one needs a language mechanism for making a run-time decision
@@ -546,7 +546,7 @@ call my_polymorphic_body%update(dp)
 
 The `sortable` type used for demonstrating the `sortable_list`
 functionality in the
-[object-based chapter's](#sec:oop_techniques)
+_object-based chapter's_
 example was set up as a fixed container-like type. It is desirable to be
 able to use the list machinery more flexibly i.e., for any type that
 supports the "less-than" comparison. This can be achieved by introducing
@@ -610,9 +610,9 @@ programming technique, which is also known as **dependency inversion**
    end type
    ```
 
-The advantage of this is that no change to the preexisting machinery
-will be needed whenever a programmer decides to add an extension type
-as outlined in 2. below.
+   The advantage of this is that no change to the preexisting machinery
+   will be needed whenever a programmer decides to add an extension type
+   as outlined in 2. below.
 
 2. For a concrete realization of a `sortable` object, the programmer
    needs to create a type extension, for example
@@ -625,10 +625,10 @@ as outlined in 2. below.
    end type
    ```
 
-including an _obligatory_ implementation `less_than_string` of an
-overriding TBP for the deferred binding. The constructor function
-(promised earlier, but not yet delivered) also needs to be updated to
-enable creation of objects of the extended type.
+   including an _obligatory_ implementation `less_than_string` of an
+   overriding TBP for the deferred binding. The constructor function
+   (promised earlier, but not yet delivered) also needs to be updated to
+   enable creation of objects of the extended type.
 
 ## Generic type-bound procedures and operator overloading
 
@@ -664,7 +664,7 @@ will automatically select the overridden procedure.
 Named generic type-bound procedures that do not overload existing
 operations can also be defined; an example for this is given in the
 section
-"[Functions with parameters](#sec:functions_with_parameters)".
+_Functions with parameters_.
 The rules for generic resolution work similar as for nonpolymorphic
 generic procedure interfaces, with the additional restriction that
 polymorphic dummy arguments that are related by inheritance cannot be
